@@ -1,0 +1,23 @@
+name: 'Terramate GitHub Actions'
+description: 'Runs Terramate commands via GitHub Actions.'
+author: 'Terramate'
+inputs:
+  tm_command:
+    description: 'Terramate command'
+    required: true
+    type: string
+    # enum: ['deploy', 'preview', 'check', 'arbitrary']
+  tm_version:
+    description: 'Terramate version to install.'
+    default: '0.4.1'
+  tf_version:
+    description: 'Terraform version to install.'
+    default: '1.6.1'
+outputs:
+  tf_actions_output:
+    description: 'The Terramate output'
+runs:
+  using: 'docker'
+  image: './Dockerfile'
+  # args:
+  #   - ${{ inputs.tm_version }}
