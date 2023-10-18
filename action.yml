@@ -1,0 +1,34 @@
+name: 'Terramate'
+description: 'Terramate'
+inputs:
+  tm_version:
+    description: 'Terramate version'
+    required: false
+    default: latest
+  tm_command:
+    description: 'Terramate command'
+    required: false
+  use_wrapper:
+    description: 'Use wrapper'
+    required: false
+    default: "true"
+outputs:
+  stdout:
+    description: "Stdout"
+    value: ${{ steps.run.outputs.stdout }}
+  stderr:
+    description: "Stderr"
+    value: ${{ steps.run.outputs.stderr }}
+  exitcode:
+    description: "Exit code"
+    value: ${{ steps.run.outputs.exitcode }}
+runs:
+  using: "composite"
+  steps:
+    - run: printf "TM_VERSION=${{inputs.tm_version}}\nTM_COMMAND=${{inputs.tm_command}}\nUSE_WRAPPER=${{inputs.use_wrapper}}" >> $GITHUB_ENV
+      shell: bash
+    - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
+      shell: bash
+    - id: run
+      run: main.sh
+      shell: bash
