@@ -25,10 +25,12 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - run: printf "TM_VERSION=${{inputs.tm_version}}\nTM_COMMAND=${{inputs.tm_command}}\nUSE_WRAPPER=${{inputs.use_wrapper}}" >> $GITHUB_ENV
-      shell: bash
     - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
       shell: bash
     - id: run
       run: main.sh
       shell: bash
+      env:
+        TM_VERSION:  ${{inputs.tm_version}}
+        TM_COMMAND:  ${{inputs.tm_command}}
+        USE_WRAPPER: ${{inputs.use_wrapper}}
