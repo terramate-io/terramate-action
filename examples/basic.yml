@@ -13,24 +13,21 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: 'Checkout'
+      - name: Checkout
         uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
-          fetch-depth: 0
+          fetch-depth: 0 # (essential for change detection to work correctly)
       - uses: hashicorp/setup-terraform@v2
-      - id: test
-        uses: terramate-io/terramate-action@main
         with:
-          tm_command: run -- pwd
+          terraform_wrapper: false
+      - name: Install terramate
+        uses: terramate-io/terramate-action@main
       - id: init
-        uses: terramate-io/terramate-action@main
-        with:
-          tm_command: run -- terraform init -no-color
+        run: terramate run -- terraform init -no-color
       - id: plan
         uses: terramate-io/terramate-action@main
-        with:
-          tm_command: run -- terraform  plan -no-color
+        run: terramate run -- terraform plan -no-color
       - name: Publish Plans for Changed Stacks
         uses: marocchino/sticky-pull-request-comment@v2
         with:
@@ -44,7 +41,3 @@ jobs:
             ```
             ${{ steps.plan.outputs.stderr }}
             ```
-
-
-
-

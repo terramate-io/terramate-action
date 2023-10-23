@@ -45,11 +45,3 @@ if [[ $(cat /tmp/init-has-run 2>/dev/null ) != $TM_VERSION ]]; then
   echo "# Installing Terramate"
   init
 fi
-
-if [[ ! -z $TM_COMMAND ]]; then
-  if [[ $USE_WRAPPER == "false" ]]; then
-     terramate-bin $TM_COMMAND || fatal "terramate command '$TM_COMMAND' failed"
-  else
-     terramate-wrapper $TM_COMMAND || fatal "terramate command '$TM_COMMAND' failed"
-  fi
-fi

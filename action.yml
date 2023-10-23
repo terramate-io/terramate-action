@@ -5,9 +5,6 @@ inputs:
     description: 'Terramate version'
     required: false
     default: latest
-  tm_command:
-    description: 'Terramate command'
-    required: false
   use_wrapper:
     description: 'Use wrapper'
     required: false
@@ -32,5 +29,4 @@ runs:
       shell: bash
       env:
         TM_VERSION:  ${{inputs.tm_version}}
-        TM_COMMAND:  ${{inputs.tm_command}}
         USE_WRAPPER: ${{inputs.use_wrapper}}
