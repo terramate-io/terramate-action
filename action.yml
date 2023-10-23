@@ -28,5 +28,6 @@ runs:
       run: main.sh
       shell: bash
       env:
+        TM_CLOUD_ORGANIZATION: ${{inputs.tm_cloud_organization}}
         TM_VERSION:  ${{inputs.tm_version}}
         USE_WRAPPER: ${{inputs.use_wrapper}}

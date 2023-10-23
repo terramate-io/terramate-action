@@ -22,6 +22,7 @@ init(){
 
   cat > /usr/local/bin/terramate-wrapper <<EOF
 #!/bin/bash
+export TM_CLOUD_ORGANIZATION=$TM_CLOUD_ORGANIZATION
 terramate-bin \$* > /tmp/stdout 2> /tmp/stderr
 exitcode=\$?
 echo "exitcode=\$exitcode" >> "\$GITHUB_OUTPUT"

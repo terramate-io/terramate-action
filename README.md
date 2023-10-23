@@ -6,6 +6,7 @@ This is a very simple Github Action that installs Terramate and allows you run a
 
 There are three optional inputs
 * `tm_version` is the version of Terramate to use, defaulting to the latest 
+* `tm_cloud_organization` sets the TM_CLOUD_ORGANIZATION env var *if you are using the wrapper*
 * `use_wrapper` if explicitly set to "false" Terramate will not be installed via a wrapper script (meaning you will have no access to the outputs)
 
 Outputs are `stdout`, `stderr` and `exitcode` which can be used in subsequent commands, e.g.
