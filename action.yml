@@ -1,7 +1,7 @@
 name: 'Terramate'
 description: 'Terramate'
 inputs:
-  tm_version:
+  version:
     description: 'Terramate version'
     required: false
     default: latest
@@ -25,8 +25,8 @@ runs:
     - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
       shell: bash
     - id: run
-      run: main.sh
+      run: install.sh
       shell: bash
       env:
-        TM_VERSION:  ${{inputs.tm_version}}
+        TM_VERSION:  ${{inputs.version}}
         USE_WRAPPER: ${{inputs.use_wrapper}}
