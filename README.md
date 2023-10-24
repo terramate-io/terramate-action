@@ -4,9 +4,10 @@ This is a very simple Github Action that installs Terramate and (optionally) a w
 
 ## Usage
 
-There are two optional inputs
+There are three optional inputs
 * `version` is the version of Terramate to use, defaulting to the latest 
-* `use_wrapper` if explicitly set to "false" Terramate will not be installed via a wrapper script (meaning you will have no access to the outputs)
+* `use_wrapper` if explicitly set to `false` Terramate CLI will not be called via a wrapper script that supports GitHub Action Outputs to use in next steps.
+* `cloud_organization` sets the Terramate Cloud organization to use for all steps in this job
 
 Outputs are `stdout`, `stderr` and `exitcode` which can be used in subsequent commands, e.g.
 
