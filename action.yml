@@ -9,6 +9,9 @@ inputs:
     description: 'Use wrapper'
     required: false
     default: "true"
+  cloud_organization:
+    description: 'Terramate Cloud organization to use'
+    required: false
 outputs:
   stdout:
     description: "Stdout"
@@ -24,9 +27,11 @@ runs:
   steps:
     - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
       shell: bash
-    - id: run
-      run: install.sh
+    - run: install.sh
       shell: bash
       env:
         TM_VERSION:  ${{inputs.version}}
         USE_WRAPPER: ${{inputs.use_wrapper}}
+    - run: echo "TM_CLOUD_ORGANIZATION=${{inputs.cloud_organization}}" >> $GITHUB_ENV
+      if: ${{ inputs.cloud_organization != '' }}
+      shell: bash
