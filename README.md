@@ -5,7 +5,7 @@ This is a very simple Github Action that installs Terramate and (optionally) a w
 ## Usage
 
 There are three optional inputs
-* `version` is the version of Terramate to use, defaulting to the latest 
+* `version` is the version of Terramate to use. If not defined, the [asdf](https://asdf-vm.com/) `.tool-versions` file is checked, and if that's empty then the latest Terramate is used
 * `use_wrapper` if explicitly set to `false` Terramate CLI will not be called via a wrapper script that supports GitHub Action Outputs to use in next steps.
 * `cloud_organization` sets the Terramate Cloud organization to use for all steps in this job
 

@@ -6,10 +6,16 @@ fatal(){
 }
 
 install(){
-  if [[ $TM_VERSION == "latest" ]]; then
-    curl -s https://api.github.com/repos/terramate-io/terramate/releases/latest > /tmp/gh_output || fatal "couldn't get Terramate release data from github"
-    TM_VERSION=$(jq -r .name /tmp/gh_output|sed 's/^v//')
+  if [[ -z $TM_VERSION ]]; then
+    asdf_version=$(awk '$1 == "terramate" {print $2}' .tool-versions)
+    if [[ -z $asdf_version ]]; then
+      curl -s https://api.github.com/repos/terramate-io/terramate/releases/latest > /tmp/gh_output || fatal "couldn't get Terramate release data from github"
+      TM_VERSION=$(jq -r .name /tmp/gh_output|sed 's/^v//')
+    else
+      TM_VERSION=$asdf_version
+    fi
   fi
+  echo "# Installing Terramate v$TM_VERSION"
 
   dl_url="https://github.com/terramate-io/terramate/releases/download/v${TM_VERSION}/terramate_${TM_VERSION}_linux_x86_64.tar.gz"
   status_code=$(curl -LsI -o /dev/null -w "%{http_code}"  "$dl_url")
@@ -26,10 +32,9 @@ install(){
   else
     ln /usr/local/bin/terramate-wrapper.sh /usr/local/bin/terramate
   fi
-  echo "$TM_VERSION" > /tmp/init-has-run
+  touch /tmp/init-has-run
 }
 
-if [[ $(cat /tmp/init-has-run 2>/dev/null ) != "$TM_VERSION" ]]; then
-  echo "# Installing Terramate"
+if [[ ! -f /tmp/init-has-run ]]; then
   install
 fi
