@@ -4,7 +4,6 @@ inputs:
   version:
     description: 'Terramate version'
     required: false
-    default: latest
   use_wrapper:
     description: 'Use wrapper'
     required: false
