@@ -32,9 +32,6 @@ install(){
   else
     ln /usr/local/bin/terramate-wrapper.sh /usr/local/bin/terramate
   fi
-  touch /tmp/init-has-run
 }
 
-if [[ ! -f /tmp/init-has-run ]]; then
-  install
-fi
+install
