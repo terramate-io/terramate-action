@@ -1,31 +1,88 @@
 # Terramate Github Action
 
-This is a very simple Github Action that installs Terramate and (by default) a wrapper that allows you to use the stdout, stderr and exit code in subsequent workflow steps. It is only compatible with Ubuntu runners.
+The [`terramate-io/terramate-action`] is a GitHub composite action that sets up Terramate CLI in your GitHub Actions workflows.
+
+- It downloads a specific version or falls back to an [asdf] configured version or the latest available release of [Terramate CLI].
+- It installs [Terramate CLI] into a user specified path or by default to `/usr/local/bin`
+- It installs a wrapper script by default so that calls to `terramate` binary will expose GitHub Action outputs to access the `stderr`, `stderr`, and the `exitcode` of the `terramate` execution.
+- It allows you to configure a default [Terramate Cloud] organization to use Terramate Cloud Features like Drift Detection and Stack Health Information.
+
+## Compatbility
+
+The action currently only supports `ubuntu` runners.
+Please open an issue, if more runner support is required.
 
 ## Usage
 
-There are three optional inputs
-* `version` is the version of Terramate to use. If not defined, the [asdf](https://asdf-vm.com/) `.tool-versions` file is checked, and if that doesn't contain a Terramate entry then the latest Terramate version is used by default.
-* `use_wrapper` if explicitly set to `false` Terramate CLI will not be called via a wrapper script. This means that the GitHub Action Outputs cannot be used in subsequent steps.
-* `cloud_organization` sets the Terramate Cloud organization to use for all steps in this job
-
-Outputs are `stdout`, `stderr` and `exitcode` which can be used in subsequent commands, e.g.
+The default action installs Terramate CLI in it's latest version unless a specific version is configured by [asdf] config file `.tool-versions`.
 
 ```yaml
-- name: Install terramate
-  uses: terramate-io/terramate-action@main
-
-- name: Terramate run plan
-  id: plan
-  run: terramate run --changed --disable-check-gen-code -- terraform plan -lock-timeout=5m -out out.tfplan
-
-- name: Publish Plans for Changed Stacks
-  uses: marocchino/sticky-pull-request-comment@v2
-  with:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    message: |
-      ${{ steps.plan.outputs.stdout }}
+steps:
+  - uses: terramate-io/terramate-action@v1
 ```
 
-There is a full example [here](./examples/basic.yml)
+You can disable [asdf] integration by explicitly specifying `"latest"` as the desired version.
 
+```yaml
+steps:
+  - uses: terramate-io/terramate-action@v1
+    with:
+      version: "latest"
+```
+
+To install a specific version the version can be specified using the `version` argument:
+
+```yaml
+steps:
+  - uses: terramate-io/terramate-action@v1
+    with:
+      version: "0.4.2"
+```
+
+The binary will be installed to `/usr/local/bin` by default. This location can be changed using the `bindir` argument:
+
+```yaml
+steps:
+  - uses: terramate-io/terramate-action@v1
+    with:
+      bindir: /usr/local/bin
+```
+
+To configure the default [Terramate Cloud] Organization set `cloud_organization` argument to your organization short name:
+
+```yaml
+steps:
+  - uses: terramate-io/terramate-action@v1
+    with:
+      cloud_organization: myorganization
+```
+
+To disable using the optional wrapper script by default the `use_wrapper` argument can be set to `"false"`:
+
+```yaml
+steps:
+  - uses: terramate-io/terramate-action@v1
+    with:
+      use_wrapper: "false"
+```
+
+Subsequent steps can access outputs when the wrapper script is installed:
+
+```yaml
+steps:
+  - uses: terramate-io/terramate-action@v1
+
+  - id: list
+    run: terramate list --changed
+
+  - run: echo ${{ steps.list.outputs.stdout }}
+  - run: echo ${{ steps.list.outputs.stderr }}
+  - run: echo ${{ steps.list.outputs.exitcode }}
+```
+
+<!-- links -->
+
+[asdf]: https://asdf-vm.com/
+[`terramate-io/terramate-action`]: https://github.com/terramate-io/terramate-action
+[Terramate CLI]: https://terramate.io/cli/docs
+[Terramate Cloud]: https://terramate.io
