@@ -1,12 +1,22 @@
 #!/bin/bash
-terramate-bin "$@" > >(tee /tmp/stdout) 2> >(tee /tmp/stderr)
-exitcode=$?
-echo "exitcode=$exitcode" >> "$GITHUB_OUTPUT"
-echo 'stdout<<EOF' >> "$GITHUB_OUTPUT"
-cat /tmp/stdout >> "$GITHUB_OUTPUT"
-echo EOF >> "$GITHUB_OUTPUT"
-echo 'stderr<<EOF' >> "$GITHUB_OUTPUT"
-cat /tmp/stderr >> "$GITHUB_OUTPUT"
-echo EOF >> "$GITHUB_OUTPUT"
-exit $exitcode
 
+tmpdir=$(mktemp -d)
+
+stdout="${tmpdir}/stdout.txt"
+stderr="${tmpdir}/stderr.txt"
+
+terramate-bin "$@" > >(tee "${stdout}") 2> >(tee "${stderr}")
+
+exitcode=$?
+
+echo "exitcode=${exitcode}" >> "$GITHUB_OUTPUT"
+
+echo 'stdout<<EOF' >> "$GITHUB_OUTPUT"
+cat "${stdout}" >> "$GITHUB_OUTPUT"
+echo EOF >> "$GITHUB_OUTPUT"
+
+echo 'stderr<<EOF' >> "$GITHUB_OUTPUT"
+cat "${stderr}" >> "$GITHUB_OUTPUT"
+echo EOF >> "$GITHUB_OUTPUT"
+
+exit ${exitcode}

@@ -2,28 +2,38 @@ name: 'Terramate'
 description: 'Terramate'
 inputs:
   version:
-    description: 'Terramate version'
+    description: |
+      The Terramate Version to install.
+      If not set and an asdf config is available in .tool-versions at the root of the repository is available, the configured version is used by default.
+      If not set and no asdf config is found, the latest version will be installed.
     required: false
+  bindir:
+    description: The destination directory of the installed terramate executable.
+    required: false
+    default: /usr/local/bin
   use_wrapper:
-    description: 'Use wrapper'
+    description: |
+      The default wrapper script installation can be skipped by setting the use_wrapper variable to 'false'.
     required: false
     default: "true"
   cloud_organization:
-    description: 'Terramate Cloud organization to use'
+    description: Terramate Cloud organization to use by default when using Terramate Cloud features.
     required: false
+
 runs:
   using: "composite"
+
   steps:
-    - name: Adding action_path to GITHUB_PATH
-      run: echo "${{ github.action_path }}" >> $GITHUB_PATH
-      shell: bash
+
     - name: Installing Terramate
-      run: install.sh
       shell: bash
+      run: ${{ github.action_path }}/install.sh
       env:
-        TM_VERSION:  ${{inputs.version}}
-        USE_WRAPPER: ${{inputs.use_wrapper}}
+        TMA_INPUT_VERSION:  ${{inputs.version}}
+        TMA_INPUT_USE_WRAPPER: ${{inputs.use_wrapper}}
+        TMA_INPUT_BINDIR: ${{inputs.bindir}}
+
     - name: Configuring Terramate execution environment
-      run: echo "TM_CLOUD_ORGANIZATION=${{inputs.cloud_organization}}" >> $GITHUB_ENV
       if: ${{ inputs.cloud_organization != '' }}
       shell: bash
+      run: echo "TM_CLOUD_ORGANIZATION=${{inputs.cloud_organization}}" >> $GITHUB_ENV

@@ -1,0 +1,109 @@
+name: Terramate Action Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  simple:
+    name: Terramate latest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install latest Terramate
+        uses: ./
+
+      - name: Validate execution
+        run: terramate version
+
+  asdf:
+    name: Terramate asdf
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: [0.4.2, 0.4.3, skip]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare asdf config
+        if: ${{ matrix.version != 'skip' }}
+        run: echo "terramate ${{ matrix.version}}" >.tool-versions
+
+      - name: Prepare empty asdf config
+        if: ${{ matrix.version == 'skip' }}
+        run: echo >.tool-versions
+
+      - name: Install asdf Terramate
+        uses: ./
+
+      - name: Validate execution
+        run: terramate version
+
+      - name: Validate version - ${{ matrix.version }}
+        id: version
+        if: ${{ matrix.version != 'skip' }}
+        run: terramate version | grep ${{ matrix.version }}
+
+      - name: Validate outputs - ${{ matrix.version }}
+        if: ${{ matrix.version != 'skip' }}
+        run: echo "${{ steps.version.outputs.stdout }}" | grep ${{ matrix.version }}
+
+
+  wrapper:
+    name: Terramate with wrapper
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: [0.4.3, latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Terramate Wrapper - ${{ matrix.version }}
+        uses: ./
+        with:
+          version: ${{ matrix.version }}
+
+      - name: Validate execution - ${{ matrix.version }}
+        run: terramate version
+
+      - name: Validate version - ${{ matrix.version }}
+        id: version
+        if: ${{ matrix.version != 'latest' }}
+        run: terramate version | grep ${{ matrix.version }}
+
+      - name: Validate outputs - ${{ matrix.version }}
+        if: ${{ matrix.version != 'latest' }}
+        run: echo "${{ steps.version.outputs.stdout }}" | grep ${{ matrix.version }}
+
+  no-wrapper:
+    name: Terramate without wrapper
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: [0.4.3, latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Terramate - ${{ matrix.version }}
+        uses: ./
+        with:
+          version: ${{ matrix.version }}
+          use_wrapper: false
+
+      - name: Validate execution - ${{ matrix.version }}
+        run: terramate version
+
+      - name: Validate - ${{ matrix.version }}
+        if: ${{ matrix.version != 'latest' }}
+        run: terramate version | grep ${{ matrix.version }}
