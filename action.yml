@@ -1,5 +1,13 @@
-name: 'Terramate'
-description: 'Terramate'
+name: Terramate Action
+
+description: Set up Terramate CLI in GitHub Actions
+
+author: Terramate GmbH
+
+branding:
+  icon: terminal
+  color: black
+
 inputs:
   version:
     description: |

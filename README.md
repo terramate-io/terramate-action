@@ -1,5 +1,7 @@
 # Terramate Github Action
 
+[![Terramate Action Tests](https://github.com/terramate-io/terramate-action/actions/workflows/tests.yml/badge.svg)](https://github.com/terramate-io/terramate-action/actions/workflows/tests.yml)
+
 The [`terramate-io/terramate-action`] is a GitHub composite action that sets up Terramate CLI in your GitHub Actions workflows.
 
 - It downloads a specific version or falls back to an [asdf] configured version or the latest available release of [Terramate CLI].
@@ -79,6 +81,17 @@ steps:
   - run: echo ${{ steps.list.outputs.stderr }}
   - run: echo ${{ steps.list.outputs.exitcode }}
 ```
+
+## License
+
+See the [LICENSE](./LICENSE) file for licensing information.
+
+## Terramate
+
+Terramate is a [CNCF](https://landscape.cncf.io/card-mode?organization=terramate&grouping=organization)
+and [Linux Foundation](https://www.linuxfoundation.org/membership/members/) silver member.
+
+<img src="https://raw.githubusercontent.com/cncf/artwork/master/other/cncf-member/silver/color/cncf-member-silver-color.svg" width="300px" alt="CNCF Silver Member logo" />
 
 <!-- links -->
 
