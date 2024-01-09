@@ -1,5 +1,7 @@
 # Terramate Github Action
 
+[![Terramate Action Tests](https://github.com/terramate-io/terramate-action/actions/workflows/tests.yml/badge.svg)](https://github.com/terramate-io/terramate-action/actions/workflows/tests.yml)
+
 The [`terramate-io/terramate-action`] is a GitHub composite action that sets up Terramate CLI in your GitHub Actions workflows.
 
 - It downloads a specific version or falls back to an [asdf] configured version or the latest available release of [Terramate CLI].
