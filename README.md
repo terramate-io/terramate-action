@@ -82,6 +82,17 @@ steps:
   - run: echo ${{ steps.list.outputs.exitcode }}
 ```
 
+## License
+
+See the [LICENSE](./LICENSE) file for licensing information.
+
+## Terramate
+
+Terramate is a [CNCF](https://landscape.cncf.io/card-mode?organization=terramate&grouping=organization)
+and [Linux Foundation](https://www.linuxfoundation.org/membership/members/) silver member.
+
+<img src="https://raw.githubusercontent.com/cncf/artwork/master/other/cncf-member/silver/color/cncf-member-silver-color.svg" width="300px" alt="CNCF Silver Member logo" />
+
 <!-- links -->
 
 [asdf]: https://asdf-vm.com/
