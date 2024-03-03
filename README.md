@@ -9,9 +9,9 @@ The [`terramate-io/terramate-action`] is a GitHub composite action that sets up 
 - It installs a wrapper script by default so that calls to `terramate` binary will expose GitHub Action outputs to access the `stderr`, `stderr`, and the `exitcode` of the `terramate` execution.
 - It allows you to configure a default [Terramate Cloud] organization to use Terramate Cloud Features like Drift Detection and Stack Health Information.
 
-## Compatbility
+## Compatibility
 
-The action currently only supports `ubuntu` runners.
+The action currently only supports `ubuntu` and `macos` runners.
 Please open an issue, if more runner support is required.
 
 ## Usage
