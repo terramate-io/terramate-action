@@ -5,7 +5,7 @@ tmpdir=$(mktemp -d)
 stdout="${tmpdir}/stdout.txt"
 stderr="${tmpdir}/stderr.txt"
 
-terramate-bin "$@" > >(tee "${stdout}") 2> >(tee "${stderr}")
+terramate-bin "$@" > >(tee "${stdout}") 2> >(tee "${stderr}" >&2)
 
 exitcode=$?
 
