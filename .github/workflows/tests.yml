@@ -10,6 +10,9 @@ defaults:
   run:
     shell: bash
 
+permissions:
+  contents: read
+
 jobs:
   simple:
     name: Terramate latest
@@ -17,22 +20,33 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      
+      - if: runner.os == 'macOS'
+        name: "install jq on macos"
+        run: brew install jq
 
       - name: Install latest Terramate
         uses: ./
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Validate execution
         run: terramate version
 
   asdf:
     name: Terramate asdf
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: ["ubuntu-latest", "macos-latest"]
         version: [0.4.2, 0.4.3, skip]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - if: runner.os == 'macOS'
+        name: "install jq on macos"
+        run: brew install jq
 
       - name: Prepare asdf config
         if: ${{ matrix.version != 'skip' }}
@@ -44,6 +58,8 @@ jobs:
 
       - name: Install asdf Terramate
         uses: ./
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Validate execution
         run: terramate version
@@ -60,9 +76,10 @@ jobs:
 
   wrapper:
     name: Terramate with wrapper
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: ["ubuntu-latest", "macos-latest"]
         version: [0.4.3, latest]
     steps:
       - name: Checkout
@@ -72,6 +89,8 @@ jobs:
         uses: ./
         with:
           version: ${{ matrix.version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Validate execution - ${{ matrix.version }}
         run: terramate version
@@ -87,9 +106,10 @@ jobs:
 
   no-wrapper:
     name: Terramate without wrapper
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: ["ubuntu-latest", "macos-latest"]
         version: [0.4.3, latest]
     steps:
       - name: Checkout
@@ -100,6 +120,8 @@ jobs:
         with:
           version: ${{ matrix.version }}
           use_wrapper: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Validate execution - ${{ matrix.version }}
         run: terramate version

@@ -18,7 +18,7 @@ get_latest_version() {
   echo >&2 "latest version: Getting latest Terramate release information from GitHub Releases"
 
   latest_url="https://api.github.com/repos/terramate-io/terramate/releases/latest"
-  latest_json=$(curl -s "${latest_url}")
+  latest_json=$(curl -s -H "Authorization: Bearer ${GITHUB_TOKEN}" "${latest_url}")
   tag_version=$(jq -r .tag_name <<<"${latest_json}")
 
   if [ -z "${tag_version}" ] || [ "${tag_version}" == "null" ] ; then
@@ -86,7 +86,29 @@ install() {
   tmpdir=$(mktemp -d)
   echo >&2 "install: Created tmp directory at ${tmpdir}"
 
-  url="https://github.com/terramate-io/terramate/releases/download/v${version}/terramate_${version}_linux_x86_64.tar.gz"
+  system=$(uname -s | tr '[:upper:]' '[:lower:]')
+  arch=$(uname -m)
+
+  if ! [[ "${system}" =~ ^(linux|darwin)$ ]]; then
+    echo >&2 "install: Unsupported system ${system}."
+    exit 1
+  fi
+
+  case "${arch}" in
+    x86_64|x64) arch=x86_64 ;;
+    aarch64|arm64) arch=arm64 ;;
+    i386|i686) arch=i386 ;;
+    *) echo >&2 "install: Unsupported architecture ${arch}." && exit 1 ;;
+  esac
+
+  if [ "${system}" == "darwin" ] && [ "${arch}" == "i386" ] ; then
+    echo >&2 "install: Unsupported architecture: darwin/i386"
+    exit 1
+  fi
+
+  echo >&2 "install: Downloading terramate binary for ${system}/${arch}"
+
+  url="https://github.com/terramate-io/terramate/releases/download/v${version}/terramate_${version}_${system}_${arch}.tar.gz"
 
   status=$(curl -w "%{http_code}" -o "${tmpdir}/terramate.tar.gz" -L "${url}")
   if [ "${status}" != "200" ] ; then
