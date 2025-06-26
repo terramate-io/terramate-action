@@ -18,16 +18,23 @@ Please open an issue, if more runner support is required.
 
 The default action installs Terramate CLI in it's latest version unless a specific version is configured by [asdf] config file `.tool-versions`.
 
+> [!IMPORTANT]
+> DEPRECATION NOTICE: We will discontinue to support running the terramate action without specifying any version when there is no [asdf] configuration found.
+> This is to safeguard you against accidental upgrades of incompatible terramate version.
+
 ```yaml
 steps:
-  - uses: terramate-io/terramate-action@v1
+  - uses: terramate-io/terramate-action@v2
 ```
 
-You can disable [asdf] integration by explicitly specifying `"latest"` as the desired version.
+You can disable [asdf] integration fallback by explicitly specifying `"latest"` as the desired version.
+
+> [!CAUTION]
+> Using `"latest"` should be avoided for any live workflows. This is purely useful in test or demo environments.
 
 ```yaml
 steps:
-  - uses: terramate-io/terramate-action@v1
+  - uses: terramate-io/terramate-action@v2
     with:
       version: "latest"
 ```
@@ -36,16 +43,16 @@ To install a specific version the version can be specified using the `version` a
 
 ```yaml
 steps:
-  - uses: terramate-io/terramate-action@v1
+  - uses: terramate-io/terramate-action@v2
     with:
-      version: "0.4.2"
+      version: "0.13.3"
 ```
 
 The binary will be installed to `/usr/local/bin` by default. This location can be changed using the `bindir` argument:
 
 ```yaml
 steps:
-  - uses: terramate-io/terramate-action@v1
+  - uses: terramate-io/terramate-action@v2
     with:
       bindir: /usr/local/bin
 ```
@@ -54,7 +61,7 @@ To configure the default [Terramate Cloud] Organization set `cloud_organization`
 
 ```yaml
 steps:
-  - uses: terramate-io/terramate-action@v1
+  - uses: terramate-io/terramate-action@v2
     with:
       cloud_organization: myorganization
 ```
@@ -63,7 +70,7 @@ To disable using the optional wrapper script by default the `use_wrapper` argume
 
 ```yaml
 steps:
-  - uses: terramate-io/terramate-action@v1
+  - uses: terramate-io/terramate-action@v2
     with:
       use_wrapper: "false"
 ```
@@ -72,7 +79,9 @@ Subsequent steps can access outputs when the wrapper script is installed:
 
 ```yaml
 steps:
-  - uses: terramate-io/terramate-action@v1
+  - uses: terramate-io/terramate-action@v2
+    with:
+      version: "0.13.3"
 
   - id: list
     run: terramate list --changed
