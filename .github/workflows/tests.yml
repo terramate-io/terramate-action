@@ -12,24 +12,26 @@ defaults:
 
 jobs:
   simple:
-    name: Terramate latest
+    name: Default action without asdf config should fail.
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install latest Terramate
+      - name: Install latest Terramate (this will fail)
+        id: install
+        continue-on-error: true
         uses: ./
 
-      - name: Validate execution
-        run: terramate version
+      - name: Validate that previous installation failed
+        run: test "${{steps.install.outcome}}" = "failure"
 
   asdf:
     name: Terramate asdf
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: [0.4.2, 0.4.3, skip]
+        version: [0.13.3, 0.14.0, skip]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -43,9 +45,20 @@ jobs:
         run: echo >.tool-versions
 
       - name: Install asdf Terramate
+        id: install
+        continue-on-error: true
         uses: ./
 
+      - name: Validate that previous installation failed
+        if: ${{ matrix.version == 'skip' }}
+        run: test "${{ steps.install.outcome }}" = "failure"
+
+      - name: Validate that previous installation succeeded
+        if: ${{ matrix.version != 'skip' }}
+        run: test "${{ steps.install.outcome }}" = "success"
+
       - name: Validate execution
+        if: ${{ matrix.version != 'skip' }}
         run: terramate version
 
       - name: Validate version - ${{ matrix.version }}
@@ -63,7 +76,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: [0.4.3, latest]
+        version: [0.14.0, latest]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -90,7 +103,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: [0.4.3, latest]
+        version: [0.14.0, latest]
     steps:
       - name: Checkout
         uses: actions/checkout@v4

@@ -5,7 +5,7 @@ set -eu
 ## GHA inputs
 
 input_use_wrapper=${TMA_INPUT_USE_WRAPPER-true}
-input_tm_version=${TMA_INPUT_VERSION-}
+input_tm_version=${TMA_INPUT_VERSION-detect}
 input_bindir=${TMA_INPUT_BINDIR-/usr/local/bin}
 
 ## GHA context
@@ -15,64 +15,59 @@ context_github_action_path=${GITHUB_ACTION_PATH-}
 ## functions
 
 get_latest_version() {
-  echo >&2 "latest version: Getting latest Terramate release information from GitHub Releases"
+  echo >&2 "get_latest_version: Getting latest Terramate release information from GitHub Releases"
 
   latest_url="https://api.github.com/repos/terramate-io/terramate/releases/latest"
   latest_json=$(curl -s "${latest_url}")
   tag_version=$(jq -r .tag_name <<<"${latest_json}")
 
   if [ -z "${tag_version}" ] || [ "${tag_version}" == "null" ] ; then
-    echo >&2 "latest version: Error extracting version from latest Terramate release on GitHub!"
+    echo >&2 "get_latest_version: ERROR: Can not extract version from latest Terramate release on GitHub!"
     exit 1
   fi
 
-  echo >&2 "latest version: Using latest version ${tag_version#v}!"
+  echo >&2 "get_latest_version: Using latest version ${tag_version#v}!"
 
   echo "${tag_version#v}"
 }
 
 get_asdf_version() {
-  if [ "${input_tm_version}" == "latest" ] ; then
-    return
-  fi
-
   asdf_config_file=".tool-versions"
+
   if [ ! -r "${asdf_config_file}" ] ; then
-    echo >&2 "asdf integration: Skipping. No config file found at ${asdf_config_file}!"
-    return
+    echo >&2 "get_asdf_version: ERROR. No config file found at ${asdf_config_file}!"
+    exit 1
   fi
 
-  echo >&2 "asdf integration: Getting desired Terramate Version from asdf config at ${asdf_config_file}!"
+  echo >&2 "get_asdf_version: Getting desired Terramate Version from asdf config at ${asdf_config_file}!"
 
   asdf_version=$(awk '$1 == "terramate" {print $2}' "${asdf_config_file}")
 
   if [ -z "${asdf_version}" ] ; then
-    echo >&2 "asdf integration: Skipping. No Terramate config found in asdf file ${asdf_config_file}!"
+    echo >&2 "get_asdf_version: ERROR. No Terramate config found in asdf file ${asdf_config_file}!"
+    exit 1
   else
-    echo >&2 "asdf integration: Using asdf version ${asdf_version}!"
+    echo >&2 "get_asdf_version: Using asdf provided version ${asdf_version}!"
     echo "${asdf_version}"
   fi
 }
 
 get_version() {
+  if [ "${input_tm_version}" == "detect" ] ; then
+    echo >&2 "get_version: Detecting version using asdf provided config!"
+    get_asdf_version
+    return
+  fi
+
   if [ "${input_tm_version}" == "latest" ] ; then
+    echo >&2 "get_version: WARNING: Using 'latest' should be avoided. Please pin a specific Terramate version to use."
     get_latest_version
     return
   fi
 
-  if [ -n "${input_tm_version}" ] ; then
-    echo >&2 "input: Using user provided version ${input_tm_version}!"
-    echo "${input_tm_version}"
-    return
-  fi
-
-  asdf_version=$(get_asdf_version)
-  if [ -n "${asdf_version}" ] ; then
-    echo "${asdf_version}"
-    return
-  fi
-
-  get_latest_version
+  echo >&2 "get_version: Using user provided version ${input_tm_version}!"
+  echo "${input_tm_version}"
+  return
 }
 
 ## main install function
@@ -90,7 +85,7 @@ install() {
 
   status=$(curl -w "%{http_code}" -o "${tmpdir}/terramate.tar.gz" -L "${url}")
   if [ "${status}" != "200" ] ; then
-    echo >&2 "install: Error downloading release. Expected HTTP status 200 and got ${status}."
+    echo >&2 "install: ERROR: Failed to download release. Expected HTTP status 200 and got ${status}."
     exit 1
   fi
 

@@ -12,9 +12,9 @@ inputs:
   version:
     description: |
       The Terramate Version to install.
-      If not set and an asdf config is available in .tool-versions at the root of the repository is available, the configured version is used by default.
-      If not set and no asdf config is found, the latest version will be installed.
+      If set to "detect" a .tool-versions file needs to exist and configure a terramate version.
     required: false
+    default: "detect"
   bindir:
     description: The destination directory of the installed terramate executable.
     required: false

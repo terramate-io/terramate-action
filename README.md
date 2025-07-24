@@ -4,7 +4,7 @@
 
 The [`terramate-io/terramate-action`] is a GitHub composite action that sets up Terramate CLI in your GitHub Actions workflows.
 
-- It downloads a specific version or falls back to an [asdf] configured version or the latest available release of [Terramate CLI].
+- It downloads a specific version or a [asdf] configured version of [Terramate CLI].
 - It installs [Terramate CLI] into a user specified path or by default to `/usr/local/bin`
 - It installs a wrapper script by default so that calls to `terramate` binary will expose GitHub Action outputs to access the `stderr`, `stderr`, and the `exitcode` of the `terramate` execution.
 - It allows you to configure a default [Terramate Cloud] organization to use Terramate Cloud Features like Drift Detection and Stack Health Information.
@@ -12,47 +12,46 @@ The [`terramate-io/terramate-action`] is a GitHub composite action that sets up 
 ## Compatbility
 
 The action currently only supports `ubuntu` runners.
-Please open an issue, if more runner support is required.
 
 ## Usage
 
-The default action installs Terramate CLI in it's latest version unless a specific version is configured by [asdf] config file `.tool-versions`.
-
-> [!IMPORTANT]
-> DEPRECATION NOTICE: We will discontinue to support running the terramate action without specifying any version when there is no [asdf] configuration found.
-> This is to safeguard you against accidental upgrades of incompatible terramate version.
+The version argument should be used to specify the desired terramate version to install.
 
 ```yaml
 steps:
-  - uses: terramate-io/terramate-action@v2
+  - uses: terramate-io/terramate-action@v3
+    with:
+      version: "0.14.0"
 ```
 
-You can disable [asdf] integration fallback by explicitly specifying `"latest"` as the desired version.
-
-> [!CAUTION]
-> Using `"latest"` should be avoided for any live workflows. This is purely useful in test or demo environments.
+The default version is `"detect"`.
+The terramate version to use needs to be defined in a `.tool-versions` file as defined by [asdf].
+This is the recommended way to specify the version so updates can be made in a single location.
 
 ```yaml
-steps:
-  - uses: terramate-io/terramate-action@v2
-    with:
-      version: "latest"
+# file: .tool-versions
+terramate 0.14.0
 ```
 
-To install a specific version the version can be specified using the `version` argument:
+```yaml
+steps:
+  - uses: terramate-io/terramate-action@v3
+    with:
+      version: "detect"
+```
+
+or just
 
 ```yaml
 steps:
-  - uses: terramate-io/terramate-action@v2
-    with:
-      version: "0.13.3"
+  - uses: terramate-io/terramate-action@v3
 ```
 
 The binary will be installed to `/usr/local/bin` by default. This location can be changed using the `bindir` argument:
 
 ```yaml
 steps:
-  - uses: terramate-io/terramate-action@v2
+  - uses: terramate-io/terramate-action@v3
     with:
       bindir: /usr/local/bin
 ```
@@ -61,7 +60,7 @@ To configure the default [Terramate Cloud] Organization set `cloud_organization`
 
 ```yaml
 steps:
-  - uses: terramate-io/terramate-action@v2
+  - uses: terramate-io/terramate-action@v3
     with:
       cloud_organization: myorganization
 ```
@@ -70,7 +69,7 @@ To disable using the optional wrapper script by default the `use_wrapper` argume
 
 ```yaml
 steps:
-  - uses: terramate-io/terramate-action@v2
+  - uses: terramate-io/terramate-action@v3
     with:
       use_wrapper: "false"
 ```
@@ -79,9 +78,7 @@ Subsequent steps can access outputs when the wrapper script is installed:
 
 ```yaml
 steps:
-  - uses: terramate-io/terramate-action@v2
-    with:
-      version: "0.13.3"
+  - uses: terramate-io/terramate-action@v3
 
   - id: list
     run: terramate list --changed
