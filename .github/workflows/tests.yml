@@ -20,10 +20,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
-      - if: runner.os == 'macOS'
-        name: "install jq on macos"
-        run: brew install jq
 
       - name: Install latest Terramate (this will fail)
         id: install
@@ -34,23 +30,26 @@ jobs:
         run: test "${{steps.install.outcome}}" = "failure"
 
   asdf:
-    name: Terramate asdf
+    name: ${{ matrix.product }} ${{ matrix.version }} asdf on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: ["ubuntu-latest", "macos-latest"]
+        os: [ubuntu-latest, macos-latest]
+        product:
+          - terramate
+          # - terramate-catalyst
         version: [0.13.3, 0.14.7, skip]
+        include:
+          - product: terramate-catalyst
+            version: 0.14.7-beta2
+            os: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - if: runner.os == 'macOS'
-        name: "install jq on macos"
-        run: brew install jq
-
       - name: Prepare asdf config
         if: ${{ matrix.version != 'skip' }}
-        run: echo "terramate ${{ matrix.version}}" >.tool-versions
+        run: echo "${{ matrix.product }} ${{ matrix.version}}" >.tool-versions
 
       - name: Prepare empty asdf config
         if: ${{ matrix.version == 'skip' }}
@@ -60,6 +59,8 @@ jobs:
         id: install
         continue-on-error: true
         uses: ./
+        with:
+          use_catalyst: "${{ matrix.product == 'terramate-catalyst'}}"
 
       - name: Validate that previous installation failed
         if: ${{ matrix.version == 'skip' }}
@@ -82,14 +83,20 @@ jobs:
         if: ${{ matrix.version != 'skip' }}
         run: echo "${{ steps.version.outputs.stdout }}" | grep ${{ matrix.version }}
 
-
   wrapper:
-    name: Terramate with wrapper
+    name: ${{ matrix.product }} ${{ matrix.version }} with wrapper on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: ["ubuntu-latest", "macos-latest"]
+        product:
+          - terramate
+          # - terramate-catalyst
         version: [0.14.7, latest]
+        include:
+          - product: terramate-catalyst
+            version: 0.14.7-beta2
+            os: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -98,6 +105,7 @@ jobs:
         uses: ./
         with:
           version: ${{ matrix.version }}
+          use_catalyst: "${{ matrix.product == 'terramate-catalyst'}}"
 
       - name: Validate execution - ${{ matrix.version }}
         run: terramate version
@@ -112,12 +120,19 @@ jobs:
         run: echo "${{ steps.version.outputs.stdout }}" | grep ${{ matrix.version }}
 
   no-wrapper:
-    name: Terramate without wrapper
+    name: ${{ matrix.product }} ${{ matrix.version }} without wrapper on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: ["ubuntu-latest", "macos-latest"]
+        product:
+          - terramate
+          # - terramate-catalyst
         version: [0.14.7, latest]
+        include:
+          - product: terramate-catalyst
+            version: 0.14.7-beta2
+            os: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -127,6 +142,7 @@ jobs:
         with:
           version: ${{ matrix.version }}
           use_wrapper: false
+          use_catalyst: "${{ matrix.product == 'terramate-catalyst'}}"
 
       - name: Validate execution - ${{ matrix.version }}
         run: terramate version

@@ -7,26 +7,40 @@ set -eu
 input_use_wrapper=${TMA_INPUT_USE_WRAPPER-true}
 input_tm_version=${TMA_INPUT_VERSION-detect}
 input_bindir=${TMA_INPUT_BINDIR-/usr/local/bin}
+input_use_catalyst=${TMA_INPUT_USE_CATALYST-false}
 
 ## GHA context
 
 context_github_action_path=${GITHUB_ACTION_PATH-}
+
+## CE and CATALYST Setup
+
+if [ "${input_use_catalyst}" == "true" ] ; then
+  echo >&2 "Using Terramate Catalyst"
+  cli_repository="terramate-io/terramate-catalyst"
+  cli_asdf_slug="terramate-catalyst"
+else
+  echo >&2 "Using Terramate Community Edition"
+  cli_repository="terramate-io/terramate"
+  cli_asdf_slug="terramate"
+fi
 
 ## functions
 
 get_latest_version() {
   echo >&2 "get_latest_version: Getting latest Terramate release information from GitHub Releases"
 
-  latest_url="https://api.github.com/repos/terramate-io/terramate/releases/latest"
+  latest_url="https://api.github.com/repos/${cli_repository}/releases/latest"
   latest_json=$(curl -s "${latest_url}")
   tag_version=$(jq -r .tag_name <<<"${latest_json}")
 
   if [ -z "${tag_version}" ] || [ "${tag_version}" == "null" ] ; then
-    echo >&2 "get_latest_version: ERROR: Can not extract version from latest Terramate release on GitHub!"
+    echo >&2 "get_latest_version: ERROR: Can not extract version from latest ${cli_repository} release on GitHub:"
+    cat >&2 "${latest_json}"
     exit 1
   fi
 
-  echo >&2 "get_latest_version: Using latest version ${tag_version#v}!"
+  echo >&2 "get_latest_version: Using latest version ${tag_version#v} of ${cli_repository}!"
 
   echo "${tag_version#v}"
 }
@@ -39,33 +53,34 @@ get_asdf_version() {
     exit 1
   fi
 
-  echo >&2 "get_asdf_version: Getting desired Terramate Version from asdf config at ${asdf_config_file}!"
+  echo >&2 "get_asdf_version: Getting desired '${cli_asdf_slug}' version from asdf config at ${asdf_config_file}!"
 
-  asdf_version=$(awk '$1 == "terramate" {print $2}' "${asdf_config_file}")
+  asdf_version=$(awk "\$1 == \"${cli_asdf_slug}\" {print \$2}" "${asdf_config_file}")
 
   if [ -z "${asdf_version}" ] ; then
-    echo >&2 "get_asdf_version: ERROR. No Terramate config found in asdf file ${asdf_config_file}!"
+    echo >&2 "get_asdf_version: ERROR. No '${cli_asdf_slug}' config found in asdf file ${asdf_config_file}!"
     exit 1
   else
-    echo >&2 "get_asdf_version: Using asdf provided version ${asdf_version}!"
+    echo >&2 "get_asdf_version: Using asdf provided version ${asdf_version} for ${cli_asdf_slug}!"
     echo "${asdf_version}"
   fi
 }
 
 get_version() {
   if [ "${input_tm_version}" == "detect" ] ; then
-    echo >&2 "get_version: Detecting version using asdf provided config!"
+    echo >&2 "get_version: Detecting version using asdf provided config for ${cli_asdf_slug}!"
     get_asdf_version
     return
   fi
 
+  ## DO NOT USE latest! Unsolicited aka automatic updates are risky and could introduce undetected bugs.
   if [ "${input_tm_version}" == "latest" ] ; then
     echo >&2 "get_version: WARNING: Using 'latest' should be avoided. Please pin a specific Terramate version to use."
     get_latest_version
     return
   fi
 
-  echo >&2 "get_version: Using user provided version ${input_tm_version}!"
+  echo >&2 "get_version: Using user provided version ${input_tm_version} for ${cli_asdf_slug}!"
   echo "${input_tm_version}"
   return
 }
@@ -76,7 +91,7 @@ install() {
   destdir="${input_bindir}"
 
   version=$(get_version)
-  echo >&2 "install: Downloading Terramate v${version}"
+  echo >&2 "install: Preparing download of ${cli_asdf_slug} v${version}"
 
   tmpdir=$(mktemp -d)
   echo >&2 "install: Created tmp directory at ${tmpdir}"
@@ -101,9 +116,11 @@ install() {
     exit 1
   fi
 
-  echo >&2 "install: Downloading terramate binary for ${system}/${arch}"
+  echo >&2 "install: Selected release to download: ${cli_asdf_slug} v${version} for ${system}/${arch}"
 
-  url="https://github.com/terramate-io/terramate/releases/download/v${version}/terramate_${version}_${system}_${arch}.tar.gz"
+  url="https://github.com/${cli_repository}/releases/download/v${version}/${cli_asdf_slug}_${version}_${system}_${arch}.tar.gz"
+
+  echo >&2 "install: Downloading from ${url}"
 
   status=$(curl -w "%{http_code}" -o "${tmpdir}/terramate.tar.gz" -L "${url}")
   if [ "${status}" != "200" ] ; then

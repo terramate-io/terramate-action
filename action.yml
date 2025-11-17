@@ -27,6 +27,13 @@ inputs:
   cloud_organization:
     description: Terramate Cloud organization to use by default when using Terramate Cloud features.
     required: false
+  use_catalyst:
+    description: |
+      Install Terramate Catalyst version instead of the Terramate CE version.
+      Catalyst provides additional features like Bundles and Components to support self-service and scaffolding.
+      Catalyst is 100% compatible with Terramate CLI but extends its capabilities with new schemas.
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
@@ -40,6 +47,7 @@ runs:
         TMA_INPUT_VERSION:  ${{inputs.version}}
         TMA_INPUT_USE_WRAPPER: ${{inputs.use_wrapper}}
         TMA_INPUT_BINDIR: ${{inputs.bindir}}
+        TMA_INPUT_USE_CATALYST: ${{inputs.use_catalyst}}
 
     - name: Configuring Terramate execution environment
       if: ${{ inputs.cloud_organization != '' }}

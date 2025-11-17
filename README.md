@@ -13,7 +13,23 @@ The [`terramate-io/terramate-action`] is a GitHub composite action that sets up 
 
 The action currently only supports `ubuntu` and `macos` runners.
 
+## Catalyst Support
+
+Terramate Catalyst extends Terramate CLI with additional feature to scale IaC and allow simple self-service also for non experts.
+If you are intersted in joining our Design Partner Beta Program, please [book a demo](https://terramate.io/demo).
+
+```yaml
+steps:
+  - uses: terramate-io/terramate-action@v3
+    with:
+      version: "0.14.7-beta1"
+      use_catalyst: true
+```
+
 ## Usage
+
+> [!NOTE]
+> Add `use_catalyst: true` to any of the examples below to ensure you are using Terramate Catalyst.
 
 The version argument should be used to specify the desired terramate version to install.
 
