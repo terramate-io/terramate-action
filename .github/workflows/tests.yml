@@ -127,8 +127,6 @@ jobs:
         with:
           version: ${{ matrix.version }}
           use_wrapper: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Validate execution - ${{ matrix.version }}
         run: terramate version

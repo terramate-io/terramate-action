@@ -18,7 +18,7 @@ get_latest_version() {
   echo >&2 "get_latest_version: Getting latest Terramate release information from GitHub Releases"
 
   latest_url="https://api.github.com/repos/terramate-io/terramate/releases/latest"
-  latest_json=$(curl -s -H "Authorization: Bearer ${GITHUB_TOKEN}" "${latest_url}")
+  latest_json=$(curl -s "${latest_url}")
   tag_version=$(jq -r .tag_name <<<"${latest_json}")
 
   if [ -z "${tag_version}" ] || [ "${tag_version}" == "null" ] ; then
