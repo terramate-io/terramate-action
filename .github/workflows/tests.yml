@@ -10,6 +10,9 @@ defaults:
   run:
     shell: bash
 
+permissions:
+  contents: read
+
 jobs:
   simple:
     name: Default action without asdf config should fail.
@@ -17,6 +20,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      
+      - if: runner.os == 'macOS'
+        name: "install jq on macos"
+        run: brew install jq
 
       - name: Install latest Terramate (this will fail)
         id: install
@@ -28,13 +35,18 @@ jobs:
 
   asdf:
     name: Terramate asdf
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        version: [0.13.3, 0.14.0, skip]
+        os: ["ubuntu-latest", "macos-latest"]
+        version: [0.13.3, 0.14.7, skip]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - if: runner.os == 'macOS'
+        name: "install jq on macos"
+        run: brew install jq
 
       - name: Prepare asdf config
         if: ${{ matrix.version != 'skip' }}
@@ -73,10 +85,11 @@ jobs:
 
   wrapper:
     name: Terramate with wrapper
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        version: [0.14.0, latest]
+        os: ["ubuntu-latest", "macos-latest"]
+        version: [0.14.7, latest]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -100,10 +113,11 @@ jobs:
 
   no-wrapper:
     name: Terramate without wrapper
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        version: [0.14.0, latest]
+        os: ["ubuntu-latest", "macos-latest"]
+        version: [0.14.7, latest]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
