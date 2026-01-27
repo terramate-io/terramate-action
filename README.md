@@ -16,7 +16,6 @@ The action currently only supports `ubuntu` and `macos` runners.
 ## Catalyst Support
 
 Terramate Catalyst extends Terramate CLI with additional feature to scale IaC and allow simple self-service also for non experts.
-If you are intersted in joining our Design Partner Beta Program, please [book a demo](https://terramate.io/demo).
 
 ```yaml
 steps:
