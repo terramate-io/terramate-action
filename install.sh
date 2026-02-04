@@ -138,7 +138,7 @@ install() {
   if ! echo "${PATH}" | tr ':' '\n' | grep -Fqx "${destdir}" ; then
     echo >&2 "install: add ${destdir} to PATH"
     export PATH="${destdir}:${PATH}"
-    echo "${destdir}" >> ${GITHUB_PATH:-/dev/null}
+    echo "${destdir}" >> "${GITHUB_PATH:-/dev/null}"
   fi
 
   if [ "${input_use_wrapper}" != "false" ] && [ -n "${context_github_action_path}" ] ; then
