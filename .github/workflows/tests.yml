@@ -150,3 +150,36 @@ jobs:
       - name: Validate - ${{ matrix.version }}
         if: ${{ matrix.version != 'latest' }}
         run: terramate version | grep ${{ matrix.version }}
+
+  bindir:
+    name: ${{ matrix.product }} ${{ matrix.version }} custom bindir ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ["ubuntu-latest", "macos-latest"]
+        product:
+          - terramate
+          # - terramate-catalyst
+        version: [0.14.7, latest]
+        include:
+          - product: terramate-catalyst
+            version: 0.14.7-beta2
+            os: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Terramate - ${{ matrix.version }}
+        uses: ./
+        with:
+          version: ${{ matrix.version }}
+          use_wrapper: false
+          use_catalyst: "${{ matrix.product == 'terramate-catalyst'}}"
+          bindir: ${{ runner.temp }}/custom-bin
+
+      - name: Validate execution - ${{ matrix.version }}
+        run: terramate version
+
+      - name: Validate - ${{ matrix.version }}
+        if: ${{ matrix.version != 'latest' }}
+        run: terramate version | grep ${{ matrix.version }}

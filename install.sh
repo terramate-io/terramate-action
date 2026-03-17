@@ -132,7 +132,14 @@ install() {
   tar xzf "${tmpdir}/terramate.tar.gz" -C "${tmpdir}" terramate
 
   echo >&2 "install: installing terramate into ${destdir}"
+  mkdir -p "${destdir}"
   cp "${tmpdir}/terramate" "${destdir}/terramate-bin"
+
+  if ! echo "${PATH}" | tr ':' '\n' | grep -Fqx "${destdir}" ; then
+    echo >&2 "install: add ${destdir} to PATH"
+    export PATH="${destdir}:${PATH}"
+    echo "${destdir}" >> "${GITHUB_PATH:-/dev/null}"
+  fi
 
   if [ "${input_use_wrapper}" != "false" ] && [ -n "${context_github_action_path}" ] ; then
     echo >&2 "install: installing terramate-wrapper into ${destdir}"
