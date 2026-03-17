@@ -52,4 +52,6 @@ runs:
     - name: Configuring Terramate execution environment
       if: ${{ inputs.cloud_organization != '' }}
       shell: bash
-      run: echo "TM_CLOUD_ORGANIZATION=${{inputs.cloud_organization}}" >> $GITHUB_ENV
+      env:
+        CLOUD_ORGANIZATION: ${{inputs.cloud_organization}}
+      run: echo "TM_CLOUD_ORGANIZATION=$CLOUD_ORGANIZATION" >> $GITHUB_ENV
